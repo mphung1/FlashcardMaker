@@ -4,12 +4,14 @@ const path = require("path");
 const fs = require("fs");
 const PDFDocument = require('pdfkit');
 const {Storage} = require('@google-cloud/storage');
-const storage = new Storage({
-  keyFilename: path.join(__dirname, "gc-key.json"),
-  projectId: "study-helper-372507"
-});
 
-// storage.getBuckets().then(x => console.log(x))
+const storage = new Storage({
+  projectId: "study-helper-372507",
+  keyFilename: path.join(__dirname, "./gc-key.json"),
+});
+// const storage = new Storage();
+
+storage.getBuckets().then(x => console.log(x))
 
 const cors = require('cors');
 app.use(cors({
