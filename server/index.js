@@ -3,15 +3,9 @@ const app = express();
 const path = require("path");
 const fs = require("fs");
 const PDFDocument = require('pdfkit');
-const {Storage} = require('@google-cloud/storage');
+const { Storage } = require('@google-cloud/storage');
 
-const storage = new Storage({
-  projectId: "study-helper-372507",
-  keyFilename: path.join(__dirname, "./gc-key.json"),
-});
-// const storage = new Storage();
-
-storage.getBuckets().then(x => console.log(x))
+const PORT = process.env.PORT || 8081
 
 const cors = require('cors');
 app.use(cors({
@@ -19,10 +13,28 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const language = require('@google-cloud/language');
-const client = new language.LanguageServiceClient();
+const projectId = "study-helper-372507";
+const keyFilename = path.join(__dirname, "gc-key.json")
 
-const PORT = process.env.PORT || 8081
+const storage = new Storage({
+  projectId: projectId,
+  keyFilename: keyFilename
+});
+
+const language = require('@google-cloud/language');
+const client = new language.LanguageServiceClient({
+  projectId: projectId,
+  keyFilename: keyFilename
+});
+
+// let fileCode = parseInt(Math.random() * 10000000000)
+// let filePath = __dirname + "/generatedFiles/" + fileCode + ".pdf"
+//
+// const doc = new PDFDocument();
+//
+// doc.pipe(fs.createWriteStream(filePath));
+//
+// doc.end()
 
 app.post('/', async (req, res) => {
   const text = req.body.text;
@@ -38,11 +50,11 @@ app.post('/pdf', async (req, res) => {
   let response = await getQandA(text);
 
   let fileCode = parseInt(Math.random() * 10000000000)
-  let filePath = "generatedPDFs/" + fileCode + ".pdf"
+  let filePath = __dirname + "/generatedFiles/" + fileCode + ".pdf"
 
   const doc = new PDFDocument();
 
-  doc.pipe(fs.createWriteStream(filePath));
+  const pdfStream = fs.createWriteStream(filePath);
 
   for (i in response.flashcards) {
     let question = response.flashcards[i].question;
@@ -74,6 +86,7 @@ app.post('/pdf', async (req, res) => {
     doc.text(' ');
   }
 
+  doc.pipe(pdfStream);
   doc.end();
 
   await storage.bucket("study-files-pdf").upload(filePath);
@@ -89,6 +102,7 @@ app.post('/pdf', async (req, res) => {
     pdfDownload: "https://storage.googleapis.com/study-files-pdf/" + fileCode + ".pdf"
   }
 
+  // res.setHeader('Content-Type', 'application/pdf');
   res.send(JSON.stringify(newResponse));
 });
 
