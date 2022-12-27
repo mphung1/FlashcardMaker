@@ -11,6 +11,7 @@ const cors = require('cors');
 app.use(cors({
   origin: "*"
 }));
+app.use(express.static(path.join(__dirname + "public")));
 app.use(express.json());
 
 const projectId = process.env.PROJECT_ID;
@@ -21,7 +22,7 @@ const client = new language.LanguageServiceClient({
   keyFilename: keyFilename
 });
 
-app.post('/', async (req, res) => {
+app.post('/flashcards', async (req, res) => {
   const text = req.body.text;
 
   let response = await getQandA(text);

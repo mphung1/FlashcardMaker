@@ -19,7 +19,7 @@ export default {
     makeFlashcards: function () {
       const input = this.$parent.inputText;
 
-      const endpoint = "http://localhost:8081/";
+      const endpoint = "https://study-assistant.herokuapp.com/flashcards";
 
       const jsonBody = { text: input };
       const stringed = JSON.stringify(jsonBody);
