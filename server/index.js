@@ -11,11 +11,11 @@ const cors = require('cors');
 app.use(cors({
   origin: "*"
 }));
-app.use(express.static(path.join(__dirname + "public")));
+app.use(express.static(path.join(__dirname + "/public")));
 app.use(express.json());
 
 const projectId = process.env.PROJECT_ID;
-const keyFilename = path.join(__dirname, process.env.STORAGE_KEY)
+const keyFilename = "gc-key.json"
 
 const client = new language.LanguageServiceClient({
   projectId: projectId,
