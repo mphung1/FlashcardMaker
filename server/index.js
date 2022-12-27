@@ -21,6 +21,8 @@ const storage = new Storage({
   keyFilename: keyFilename
 });
 
+const bucket  = storage.bucket("study-files-pdf")
+
 const language = require('@google-cloud/language');
 const client = new language.LanguageServiceClient({
   projectId: projectId,
@@ -50,11 +52,13 @@ app.post('/pdf', async (req, res) => {
   let response = await getQandA(text);
 
   let fileCode = parseInt(Math.random() * 10000000000)
-  let filePath = __dirname + "/generatedFiles/" + fileCode + ".pdf"
+  let filePath = "generatedFiles/" + fileCode + ".pdf"
 
   const doc = new PDFDocument();
 
   const pdfStream = fs.createWriteStream(filePath);
+
+  doc.pipe(pdfStream);
 
   for (i in response.flashcards) {
     let question = response.flashcards[i].question;
@@ -86,10 +90,41 @@ app.post('/pdf', async (req, res) => {
     doc.text(' ');
   }
 
-  doc.pipe(pdfStream);
-  doc.end();
+  await doc.end();
 
-  await storage.bucket("study-files-pdf").upload(filePath);
+  const blob = bucket.file(filePath);
+  const blobStream = blob.createWriteStream({
+      resumable: false,
+      gzip: true
+  });
+
+  // bucket.upload(filePath);
+
+  blobStream.on("error", (err) => {
+      res.status(500).send({ message: err.message });
+  });
+
+  blobStream.on("finish", async (data) => {
+  // Create URL for directly file access via HTTP.
+  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+
+  try {
+    await bucket.file(fileCode + ".pdf").makePublic();
+  } catch {
+    return res.status(500).send({
+      message:
+        `Public access is denied!`,
+      url: publicUrl,
+    });
+  }
+
+  res.status(200).send({
+    message: "Uploaded the file successfully",
+    url: publicUrl,
+  });
+});
+
+  blobStream.end();
 
   fs.unlink(filePath, (err) => {
     if (err) {
@@ -102,7 +137,6 @@ app.post('/pdf', async (req, res) => {
     pdfDownload: "https://storage.googleapis.com/study-files-pdf/" + fileCode + ".pdf"
   }
 
-  // res.setHeader('Content-Type', 'application/pdf');
   res.send(JSON.stringify(newResponse));
 });
 
