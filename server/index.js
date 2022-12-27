@@ -38,7 +38,6 @@ async function getQandA(text) {
     let s = sentences[i];
 
     if (s.length > 0) {
-      console.log("S : " + s);
       const document = {
         content: s,
         type: 'PLAIN_TEXT'
@@ -51,7 +50,6 @@ async function getQandA(text) {
       let found = false;
 
       entities.every(entity => {
-        console.log(entity)
         if (entity.type == "PERSON" || entity.type == "LOCATION" || entity.type == "ORGANIZATION") {
           obj = entity;
           found = true;

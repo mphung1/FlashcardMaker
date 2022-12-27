@@ -59,17 +59,12 @@ export default {
       this.hintUsed = true;
     },
     shuffle: function() {
-      console.log(this.$parent.flashcards)
       var m = this.$parent.flashcards.length, t, i;
-      console.log(m);
       while (m) {
-
         i = Math.floor(Math.random() * m--);
-
         t = this.$parent.flashcards[m];
         this.$parent.flashcards[m] = this.$parent.flashcards[i];
         this.$parent.flashcards[i] = t;
-        console.log(i + " " + m)
       }
     }
   }

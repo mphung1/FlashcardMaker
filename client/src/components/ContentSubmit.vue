@@ -34,8 +34,6 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        console.log('Success:', data);
-
         let tempFlashcards = data.flashcards;
 
         for (let i = 0; i < tempFlashcards.length; i++) {
