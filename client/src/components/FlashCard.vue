@@ -1,5 +1,5 @@
 <template>
-  <div class="shadow-xl rounded-lg p-10 h-72 mt-64">
+  <div class="shadow-xl rounded-lg p-10 h-72 mt-16">
       <div>
         <p class="text-center text-xl" v-if="cardSide == 0 && this.newQuestion.length == 0">{{ this.$parent.flashcards[cardNumber].question }}</p>
         <p class="text-center text-xl" v-if="cardSide == 0 && this.newQuestion.length != 0">{{ this.newQuestion }}</p>
@@ -7,9 +7,9 @@
       </div>
       <div class="">
         <button class="font-bold p-5" v-on:click="shuffle">Shuffle</button>
-        <button class="font-bold px-5 py-2 mr-2 shadow-md rounded-lg" v-on:click="previous">Previous</button>
-        <button class="font-bold px-5 py-2 mr-2 shadow-md rounded-lg" v-on:click="flip">Flip</button>
-        <button class="font-bold px-5 py-2 mr-2 shadow-md rounded-lg" v-on:click="next">Next</button>
+        <button class="font-bold px-5 py-2 mr-2 border-black border rounded-lg" v-on:click="previous">Previous</button>
+        <button class="font-bold px-5 py-2 mr-2 border-black border rounded-lg" v-on:click="flip">Flip</button>
+        <button class="font-bold px-5 py-2 mr-2 border-black border rounded-lg" v-on:click="next">Next</button>
         <button class="font-bold p-5" v-if="this.hintUsed === false && this.cardSide == 0" v-on:click="hint">Stuck? Get a hint.</button>
       </div>
     </div>
@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: 'FlashCard',
+  name: 'Flashcard',
   data() {
     return {
       cardNumber: 0,
