@@ -52,11 +52,13 @@ app.post('/pdf', async (req, res) => {
   let response = await getQandA(text);
 
   let fileCode = parseInt(Math.random() * 10000000000)
-  let filePath = "generatedFiles/" + fileCode + ".pdf"
+  let filePath = `generatedFiles/${fileCode}.pdf`
 
   const doc = new PDFDocument();
 
-  const pdfStream = fs.createWriteStream(filePath);
+  const pdfStream = await fs.createWriteStream(filePath, { metadata: {
+          contentType: 'application/pdf'
+    }});
 
   doc.pipe(pdfStream);
 
@@ -92,49 +94,51 @@ app.post('/pdf', async (req, res) => {
 
   await doc.end();
 
-  const blob = bucket.file(filePath);
-  const blobStream = blob.createWriteStream({
-      resumable: false,
-      gzip: true
-  });
 
-  // bucket.upload(filePath);
+  // const data = fs.createReadStream(filePath, 'utf-8')
 
-  blobStream.on("error", (err) => {
-      res.status(500).send({ message: err.message });
-  });
-
-  blobStream.on("finish", async (data) => {
-  // Create URL for directly file access via HTTP.
-  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-
-  try {
-    await bucket.file(fileCode + ".pdf").makePublic();
-  } catch {
-    return res.status(500).send({
-      message:
-        `Public access is denied!`,
-      url: publicUrl,
-    });
-  }
-
-  res.status(200).send({
-    message: "Uploaded the file successfully",
-    url: publicUrl,
-  });
-});
-
-  blobStream.end();
-
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.error(err)
-      return
-    }
-  })
+  // await bucket.upload("generatedFiles/" + fileCode + ".pdf")
+//
+//   const blob = bucket.file(data.path);
+//   const blobStream = blob.createWriteStream({
+//       resumable: false,
+//   });
+//
+//   blobStream.on("error", (err) => {
+//       res.status(500).send({ message: err.message });
+//   });
+//
+//   blobStream.on("finish", async (data) => {
+//   // Create URL for direct file access via HTTP.
+//   const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+//   try {
+//     await bucket.file(fileCode + ".pdf").makePublic();
+//   } catch {
+//     return res.status(500).send({
+//       message:
+//         `Public access is denied!`,
+//       url: publicUrl,
+//     });
+//   }
+//
+//   res.status(200).send({
+//     message: "Uploaded the file successfully",
+//     url: publicUrl,
+//   });
+// });
+//
+//   blobStream.end(data.buffer);
+//
+// //   // fs.unlink(filePath, (err) => {
+// //   //   if (err) {
+// //   //     console.error(err)
+// //   //     return
+// //   //   }
+// //   // })
+// //
 
   let newResponse = {
-    pdfDownload: "https://storage.googleapis.com/study-files-pdf/" + fileCode + ".pdf"
+    pdfDownload: `https://storage.googleapis.com/${bucket.name}/${fileCode}.pdf`
   }
 
   res.send(JSON.stringify(newResponse));
