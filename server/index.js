@@ -2,6 +2,7 @@ const express = require('express')
 const app = express();
 const path = require("path");
 const fs = require("fs");
+require('dotenv').config()
 const PDFDocument = require('pdfkit');
 const { Storage } = require('@google-cloud/storage');
 
@@ -13,8 +14,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const projectId = "study-helper-372507";
-const keyFilename = path.join(__dirname, "gc-key.json")
+const projectId = process.env.PROJECT_ID;
+const keyFilename = path.join(__dirname, process.env.STORAGE_KEY)
 
 const storage = new Storage({
   projectId: projectId,
@@ -29,15 +30,6 @@ const client = new language.LanguageServiceClient({
   keyFilename: keyFilename
 });
 
-// let fileCode = parseInt(Math.random() * 10000000000)
-// let filePath = __dirname + "/generatedFiles/" + fileCode + ".pdf"
-//
-// const doc = new PDFDocument();
-//
-// doc.pipe(fs.createWriteStream(filePath));
-//
-// doc.end()
-
 app.post('/', async (req, res) => {
   const text = req.body.text;
 
@@ -49,10 +41,10 @@ app.post('/', async (req, res) => {
 app.post('/pdf', async (req, res) => {
   const text = req.body.text;
 
-  let response = await getQandA(text);
+  const response = await getQandA(text);
 
-  let fileCode = parseInt(Math.random() * 10000000000)
-  let filePath = `generatedFiles/${fileCode}.pdf`
+  const fileCode = parseInt(Math.random() * 10000000000)
+  const filePath = `generatedFiles/${fileCode}.pdf`
 
   const doc = new PDFDocument();
 
@@ -95,9 +87,9 @@ app.post('/pdf', async (req, res) => {
   await doc.end();
 
 
-  // const data = fs.createReadStream(filePath, 'utf-8')
-
-  // await bucket.upload("generatedFiles/" + fileCode + ".pdf")
+  const data = fs.createReadStream(filePath, 'utf-8')
+  // console.log(data)
+  await bucket.upload("generatedFiles/" + fileCode + ".pdf")
 //
 //   const blob = bucket.file(data.path);
 //   const blobStream = blob.createWriteStream({
