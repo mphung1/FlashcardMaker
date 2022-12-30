@@ -6,7 +6,6 @@
     </div>
     <div>
       <button class="text-lg border-black border-2 hover:bg-slate-300 px-3 py-2 mt-5 rounded-lg font-bold m-3" v-on:click="makeFlashcards">Generate flashcards</button>
-      <button class="text-lg border-black border-2 hover:bg-slate-300 px-3 py-2 mt-5 rounded-lg font-bold m-3" v-on:click="makeQuizzes">Generate quizzes</button>
       <button class="text-lg border-black border-2 hover:bg-slate-300 px-3 py-2 mt-5 rounded-lg font-bold m-3" v-on:click="setExample">Example text</button>
     </div>
   </div>
